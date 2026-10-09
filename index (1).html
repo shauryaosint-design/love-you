@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>For My Princess</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #050208;
+      overflow: hidden;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: #f2d7d9;
+    }
+
+    /* ===== WELCOME SCREEN ===== */
+    #welcome {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at center, #1a0a12 0%, #08040a 55%, #030105 100%);
+      transition: opacity 1.2s ease, visibility 1.2s;
+    }
+
+    #welcome.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: #c45c6a;
+      border-radius: 50%;
+      opacity: 0.25;
+      animation: float 12s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.15; }
+      50% { transform: translateY(-40px) scale(1.3); opacity: 0.4; }
+    }
+
+    .ornament {
+      font-size: 22px;
+      letter-spacing: 18px;
+      color: #8b3a48;
+      margin-bottom: 18px;
+      opacity: 0.7;
+    }
+
+    .title {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(42px, 9vw, 78px);
+      color: #f5c6cb;
+      text-align: center;
+      line-height: 1.15;
+      text-shadow:
+        0 0 30px rgba(196, 70, 90, 0.45),
+        0 0 60px rgba(140, 30, 50, 0.25);
+      margin-bottom: 8px;
+      animation: titleGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { text-shadow: 0 0 30px rgba(196, 70, 90, 0.4), 0 0 60px rgba(140, 30, 50, 0.2); }
+      50% { text-shadow: 0 0 45px rgba(220, 90, 110, 0.6), 0 0 90px rgba(160, 40, 60, 0.35); }
+    }
+
+    .subtitle {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(15px, 2.8vw, 20px);
+      color: #b87a84;
+      letter-spacing: 4px;
+      margin-bottom: 48px;
+      opacity: 0.85;
+    }
+
+    .input-wrap {
+      position: relative;
+      width: min(340px, 86vw);
+      margin-bottom: 18px;
+    }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 16px 22px;
+      background: rgba(20, 6, 12, 0.75);
+      border: 1px solid #5c2a35;
+      border-radius: 4px;
+      color: #f2d7d9;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      letter-spacing: 1px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.35s, box-shadow 0.35s, background 0.35s;
+    }
+
+    .input-wrap input::placeholder {
+      color: #6b3a45;
+      font-style: italic;
+    }
+
+    .input-wrap input:focus {
+      border-color: #a84a5a;
+      background: rgba(30, 8, 16, 0.9);
+      box-shadow: 0 0 20px rgba(160, 50, 70, 0.25);
+    }
+
+    .btn {
+      padding: 14px 48px;
+      background: linear-gradient(135deg, #6b2030 0%, #4a1220 100%);
+      border: 1px solid #8b3a48;
+      border-radius: 4px;
+      color: #f5c6cb;
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      box-shadow: 0 4px 20px rgba(80, 15, 30, 0.4);
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #8b2a3a 0%, #5c1830 100%);
+      border-color: #c45c6a;
+      box-shadow: 0 6px 28px rgba(140, 30, 50, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn:active { transform: translateY(0); }
+
+    /* Reject message */
+    #reject {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #080205;
+      z-index: 110;
+      animation: fadeIn 0.6s ease;
+    }
+
+    #reject.show { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .reject-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      opacity: 0.7;
+    }
+
+    .reject-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 4.5vw, 28px);
+      color: #c45c6a;
+      text-align: center;
+      max-width: 420px;
+      line-height: 1.5;
+      letter-spacing: 1px;
+      padding: 0 20px;
+    }
+
+    .reject-sub {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #6b3a45;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .reject-back {
+      margin-top: 36px;
+      padding: 10px 28px;
+      background: transparent;
+      border: 1px solid #5c2a35;
+      color: #8b5a62;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.3s;
+    }
+
+    .reject-back:hover {
+      border-color: #8b3a48;
+      color: #c45c6a;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+      pointer-events: none;
+    }
+
+    /* ===== HEART CANVAS ===== */
+    #c {
+      display: none;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+
+    #c.active { display: block; }
+
+    /* Mobile & responsive polish */
+    @media (max-width: 600px) {
+      .title {
+        font-size: clamp(36px, 11vw, 52px);
+        padding: 0 12px;
+      }
+      .subtitle {
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-bottom: 36px;
+        padding: 0 16px;
+      }
+      .input-wrap {
+        width: min(300px, 88vw);
+      }
+      .input-wrap input {
+        padding: 14px 16px;
+        font-size: 16px; /* prevents iOS zoom */
+      }
+      .btn {
+        padding: 13px 36px;
+        font-size: 14px;
+        letter-spacing: 2px;
+      }
+      .reject-text {
+        font-size: clamp(18px, 5vw, 24px);
+        padding: 0 24px;
+      }
+      .ornament {
+        letter-spacing: 12px;
+        font-size: 18px;
+      }
+    }
+
+    /* Safe area for notched phones */
+    #welcome, #reject {
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- WELCOME SCREEN -->
+  <div id="welcome">
+    <div class="vignette"></div>
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <h1 class="title">Love You So Much<br>My Love</h1>
+    <p class="subtitle">a secret only she can open</p>
+
+    <div class="input-wrap">
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="enter your name to open surprise"
+        autocomplete="off"
+        spellcheck="false"
+        maxlength="30"
+      />
+    </div>
+
+    <button class="btn" id="enterBtn">Enter</button>
+  </div>
+
+  <!-- REJECT SCREEN -->
+  <div id="reject">
+    <div class="vignette"></div>
+    <div class="reject-icon">🥀</div>
+    <div class="reject-text">Stay away bro<br>it's only for my princess</div>
+    <div class="reject-sub">access denied</div>
+    <button class="reject-back" id="backBtn">← try again</button>
+  </div>
+
+  <!-- HEART CANVAS -->
+  <canvas id="c"></canvas>
+
+  <script>
+    // ========== WELCOME LOGIC ==========
+    const ALLOWED = new Set(['vaibhavi', 'yashi']);
+
+    const welcome = document.getElementById('welcome');
+    const reject = document.getElementById('reject');
+    const nameInput = document.getElementById('nameInput');
+    const enterBtn = document.getElementById('enterBtn');
+    const backBtn = document.getElementById('backBtn');
+    const canvas = document.getElementById('c');
+
+    // floating particles
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.animationDuration = (8 + Math.random() * 10) + 's';
+      p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+      welcome.appendChild(p);
+    }
+
+    function checkName() {
+      const raw = nameInput.value.trim().toLowerCase();
+      if (!raw) {
+        nameInput.focus();
+        nameInput.style.borderColor = '#8b3a48';
+        setTimeout(() => nameInput.style.borderColor = '', 600);
+        return;
+      }
+
+      if (ALLOWED.has(raw)) {
+        welcome.classList.add('hidden');
+        setTimeout(() => {
+          canvas.classList.add('active');
+          startHeart();
+        }, 900);
+      } else {
+        reject.classList.add('show');
+      }
+    }
+
+    enterBtn.addEventListener('click', checkName);
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') checkName();
+    });
+
+    backBtn.addEventListener('click', () => {
+      reject.classList.remove('show');
+      nameInput.value = '';
+      nameInput.focus();
+    });
+
+    setTimeout(() => nameInput.focus(), 400);
+
+
+    // ========== HEART ANIMATION ==========
+    const ctx = canvas.getContext('2d');
+
+    const SC = 21;
+    const OY = 18;
+    const DURATION = 9;
+    const ANIM = 40;
+    const LIFT = 28;
+    const GAP = 4;
+    const SIZES = [9, 10, 11, 12];
+    const FONT = 'Arial';
+    const BG = '#060208';
+    const FLASH = [1.0, 0.78, 0.78];
+    const BGC = [0.0235, 0.0078, 0.0314];
+
+    const PHRASES = [
+      "I love you", "Seni seviyorum", "Te amo", "Je t'aime",
+      "Ich liebe dich", "Ti amo", "Eu te amo", "Я тебя люблю",
+      "사랑해", "愛してる", "我爱你", "मैं तुमसे प्यार करता हूँ",
+      "Σ' αγαπώ", "Ik hou van jou", "Jag älskar dig", "Kocham cię",
+      "ฉันรักเธอ", "Anh yêu em", "Aku cinta kamu", "Я тебе кохаю",
+    ];
+
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+    const rng = mulberry32(11);
+
+    function heart(a) {
+      const x = 16 * Math.pow(Math.sin(a), 3);
+      const y = 13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a);
+      return [x * SC, y * SC + OY];
+    }
+
+    function hx(c) {
+      return '#' + c.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0')).join('');
+    }
+
+    function mix(a, b, k) {
+      return a.map((p, i) => p + (b[i] - p) * k);
+    }
+
+    function dim(c, k) {
+      return c.map(v => v * k);
+    }
+
+    function clamp(v) {
+      return Math.max(0, Math.min(1, v));
+    }
+
+    function mathSin(v) {
+      return Math.sin(Math.PI * v);
+    }
+
+    const POLY = [];
+    for (let i = 0; i < 720; i++) POLY.push(heart(2 * Math.PI * i / 720));
+    const EDGES = POLY.map((p, i) => [p, POLY[(i + 1) % POLY.length]]);
+    const YMAX = Math.max(...POLY.map(p => p[1]));
+    const YMIN = Math.min(...POLY.map(p => p[1]));
+    const CY = (YMAX + YMIN) / 2;
+
+    function spans(y) {
+      const xs = [];
+      for (const [[x1, y1], [x2, y2]] of EDGES) {
+        if ((y1 <= y && y < y2) || (y2 <= y && y < y1)) {
+          xs.push(x1 + (y - y1) * (x2 - x1) / (y2 - y1));
+        }
+      }
+      xs.sort((a, b) => a - b);
+      const out = [];
+      for (let i = 0; i < xs.length - 1; i += 2) out.push([xs[i], xs[i + 1]]);
+      return out;
+    }
+
+    function intersect(A, B) {
+      const out = [];
+      for (const a of A) {
+        for (const b of B) {
+          const lo = Math.max(a[0], b[0]);
+          const hi = Math.min(a[1], b[1]);
+          if (hi - lo > 10) out.push([lo, hi]);
+        }
+      }
+      return out;
+    }
+
+    const measureCache = {};
+    function measure(text, size) {
+      const key = text + '|' + size;
+      if (measureCache[key] !== undefined) return measureCache[key];
+      ctx.font = `bold ${size}px ${FONT}`;
+      const w = ctx.measureText(text).width;
+      measureCache[key] = w;
+      return w;
+    }
+
+    function phraseCycle() {
+      let order = [...PHRASES];
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      let idx = 0;
+      return function next() {
+        if (idx >= order.length) {
+          order = [...PHRASES];
+          for (let i = order.length - 1; i > 0; i--) {
+            const j = Math.floor(rng() * (i + 1));
+            [order[i], order[j]] = [order[j], order[i]];
+          }
+          idx = 0;
+        }
+        return order[idx++];
+      };
+    }
+
+    function mathDist(x, y) {
+      return Math.hypot(x / (16 * SC), (y - CY) / (14.5 * SC));
+    }
+
+    function build() {
+      const nextPhrase = phraseCycle();
+      const rowH = 14;
+      const half = rowH / 2;
+      const placed = [];
+
+      let y = YMAX - half;
+      while (y > YMIN + half) {
+        const row = intersect(spans(y + half), spans(y - half));
+        for (let [lo, hi] of row) {
+          lo += 3; hi -= 3;
+          let cur = lo + rng() * 6;
+          const line = [];
+          while (true) {
+            let fit = null;
+            for (let t = 0; t < 12; t++) {
+              const text = nextPhrase();
+              const size = SIZES[Math.floor(rng() * SIZES.length)];
+              const w = measure(text, size);
+              if (cur + w <= hi) { fit = { text, size, w }; break; }
+            }
+            if (!fit) break;
+            line.push({ x: cur + fit.w / 2, text: fit.text, size: fit.size, w: fit.w });
+            cur += fit.w + GAP;
+          }
+          if (line.length === 0) continue;
+          if (line.length > 1) {
+            const left = hi - (line[line.length - 1].x + line[line.length - 1].w / 2);
+            line.forEach((it, i) => { it.x += left * i / (line.length - 1); });
+          } else {
+            line[0].x = (lo + hi) / 2;
+          }
+          line.forEach((it, i) => {
+            placed.push({
+              x: it.x, y, text: it.text, size: it.size,
+              edge: i === 0 || i === line.length - 1, w: it.w
+            });
+          });
+        }
+        y -= rowH;
+      }
+
+      const wine = [0.58, 0.0, 0.09];
+      const crimson = [0.90, 0.05, 0.14];
+      const blood = [0.98, 0.10, 0.16];
+
+      for (const p of placed) {
+        const rad = Math.min(1.0, mathDist(p.x, p.y));
+        let base = mix(wine, crimson, 0.25 + 0.75 * rad);
+        base = mix(base, blood, rng() * 0.35 + (p.edge ? 0.3 : 0));
+        p.color = base.map(v => Math.min(1, v));
+        p.rad = rad;
+      }
+
+      const edges = placed.filter(p => p.edge);
+      const inner = placed.filter(p => !p.edge);
+      edges.sort((a, b) => Math.atan2(a.x, a.y - CY) - Math.atan2(b.x, b.y - CY));
+      inner.sort((a, b) => (-a.rad + rng() * 0.08) - (-b.rad + rng() * 0.08));
+      return edges.concat(inner);
+    }
+
+    let ORDER = [], items = null, RATE = 0, acc = 0;
+    let spawning = true, active = [], mainIds = [];
+    let W = 800, H = 800;
+    let started = false;
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const side = Math.min(window.innerWidth, window.innerHeight, 860);
+      W = H = side;
+      canvas.width = side * dpr;
+      canvas.height = side * dpr;
+      canvas.style.width = side + 'px';
+      canvas.style.height = side + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.translate(W / 2, H / 2);
+    }
+
+    function spawn(p) {
+      p.f = 0;
+      p.dx = (rng() - 0.5) * 18;
+      p.alive = true;
+      p.e = 0;
+      p.u = 0;
+      active.push(p);
+      mainIds.push(p);
+    }
+
+    function animate(p) {
+      p.f += 1;
+      const u = clamp(p.f / ANIM);
+      const e = 1 - Math.pow(1 - u, 3);
+      const x = p.x, y = -p.y;
+      p.drawX = x + p.dx * (1 - e);
+      p.drawY = y - (1 - e) * LIFT;
+      p.e = e;
+      p.u = u;
+      if (u >= 1) {
+        p.drawX = x; p.drawY = y; p.e = 1; p.u = 1; p.alive = false;
+        return false;
+      }
+      return true;
+    }
+
+    function drawText(p) {
+      const c = p.color, e = p.e, u = p.u, size = p.size, text = p.text;
+      const px = p.drawX, py = p.drawY;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      ctx.font = `bold ${size}px ${FONT}`;
+      ctx.fillStyle = hx(mix(BGC, dim(c, 0.30), e));
+      ctx.fillText(text, px + 1.5, py + 2.5);
+
+      ctx.font = `bold ${size + 1}px ${FONT}`;
+      ctx.fillStyle = hx(mix(BGC, dim(c, 0.18), e * e));
+      ctx.fillText(text, px, py);
+
+      const flash = 0.75 * mathSin(clamp((u - 0.55) / 0.45));
+      const col = mix(mix(BGC, c, Math.pow(e, 1.5)), FLASH, flash);
+      ctx.font = `bold ${size}px ${FONT}`;
+      ctx.fillStyle = hx(col);
+      ctx.fillText(text, px, py);
+    }
+
+    function step() {
+      if (spawning) {
+        acc += RATE;
+        while (acc >= 1) {
+          acc -= 1;
+          const next = items.next();
+          if (next.done) { spawning = false; break; }
+          spawn(next.value);
+        }
+      }
+
+      active = active.filter(p => animate(p));
+
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.translate(W / 2, H / 2);
+
+      for (const p of mainIds) {
+        if (!p.alive) {
+          let col = p.color;
+          if (p._flashUntil && performance.now() < p._flashUntil) {
+            col = mix(p.color, FLASH, 0.55);
+          }
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = `bold ${p.size}px ${FONT}`;
+          ctx.fillStyle = hx(col);
+          ctx.fillText(p.text, p.x, -p.y);
+        }
+      }
+      for (const p of active) drawText(p);
+
+      if (!spawning && active.length === 0) {
+        if (Math.random() < 0.025 && mainIds.length) {
+          const p = mainIds[Math.floor(Math.random() * mainIds.length)];
+          p._flashUntil = performance.now() + 280;
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    function startHeart() {
+      if (started) return;
+      started = true;
+
+      // Play soft romantic music
+      const music = document.getElementById('bgMusic');
+      if (music) {
+        music.volume = 0.45;
+        music.play().catch(() => {
+          // autoplay blocked – try again on first touch
+          const unlock = () => {
+            music.play().catch(()=>{});
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+          };
+          document.addEventListener('touchstart', unlock, {once:true});
+          document.addEventListener('click', unlock, {once:true});
+        });
+      }
+
+      resize();
+      ORDER = build();
+      items = ORDER[Symbol.iterator]();
+      RATE = ORDER.length / (DURATION * 60);
+      acc = 0;
+      spawning = true;
+      active = [];
+      mainIds = [];
+      setTimeout(() => requestAnimationFrame(step), 200);
+    }
+
+    window.addEventListener('resize', () => {
+      if (started) resize();
+    });
+  </script>
+
+  <!-- Soft romantic music (plays only when surprise opens) -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+</body>
+</html>
